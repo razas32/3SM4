@@ -1,0 +1,119 @@
+
+========================================
+  BINTREE TESTING SUITE - Ali Raza
+========================================
+
+>>> Test 1: Empty Tree Constructor
+Creating an empty BinTree...
+Tree structure: I 
+Codeword count: 0 (should be 0)
+Pass: true
+
+>>> Test 2: Building Tree from Valid Codewords
+Input codewords: 10, 0, 111, 110
+Tree inorder: c1 I c0 I c3 I c2 
+Total codewords: 4 (expecting 4)
+Pass: true
+
+>>> Test 3: Catching Non-Binary Input
+Trying to insert: 10, 0, 1a1, 110
+(notice the 'a' in third codeword)
+Caught exception: Invalid argument!
+Pass: true
+
+>>> Test 4: Detecting Prefix Violations
+Trying: 10, 100, 111, 110
+(note: '10' is a prefix of '100')
+Caught exception: Prefix condition violated!
+Pass: true
+
+>>> Test 5: Duplicate Codeword Detection
+Trying: 10, 0, 10, 110
+(10 appears twice)
+Caught exception: Prefix condition violated!
+Pass: true
+
+>>> Test 6: Tree Height Calculations
+Empty tree height: 0 (expect 0)
+Main tree height: 3 (expect 3)
+Short tree {0, 10, 11} height: 2 (expect 2)
+Pass: true
+
+>>> Test 7: Retrieving Codewords (Lexicographical Order)
+Codewords from tree: [0, 10, 110, 111]
+Should be: [0, 10, 110, 111]
+Pass: true
+
+>>> Test 8a: Decoding Binary Strings
+Encoded message: 11011110110000
+Decoded symbols: [c3, c2, c0, c3, c1, c1, c1]
+Expected: [c3, c2, c0, c3, c1, c1, c1]
+Pass: true
+
+>>> Test 8b: Another Decoding Test
+Encoded message: 0011001010111
+Decoded symbols: [c1, c1, c3, c1, c0, c0, c2]
+Expected: [c1, c1, c3, c1, c0, c0, c2]
+Pass: true
+
+>>> Test 9: String Representation Format
+toString output: (c0,10) (c1,0) (c2,111) (c3,110) 
+Expected format: (c0,10) (c1,0) (c2,111) (c3,110) 
+Pass: true
+
+Let's try with the shorter tree:
+Short tree toString: (c0,0) (c1,10) (c2,11) 
+Expected: (c0,0) (c1,10) (c2,11) 
+Pass: true
+
+>>> Test 10: Array Representation (2SI3 Convention)
+Array size: 16
+Non-null entries:
+  Position 1: I
+  Position 2: 0
+  Position 3: I
+  Position 6: 10
+  Position 7: I
+  Position 14: 110
+  Position 15: 111
+
+Expected positions:
+  Position 1: I (root)
+  Position 2: 0
+  Position 3: I
+  Position 6: 10
+  Position 7: I
+  Position 14: 110
+  Position 15: 111
+Pass: true
+
+>>> Test 11: Edge Case - Single Codeword
+Tree: c0 I 
+Height: 1
+Codeword count: 1
+String form: (c0,0) 
+Pass: true
+
+>>> Test 12: Complex Tree - Deep Paths
+Building tree with codes: 00000, 00001, 0001, 001, 01, 1
+Tree structure: c0 I c1 I c2 I c3 I c4 I c5 
+Height: 5 (should be 5)
+Codeword count: 6
+Retrieved codes: [00000, 00001, 0001, 001, 01, 1]
+Pass: true
+
+========================================
+  ALL TESTS COMPLETED SUCCESSFULLY!
+========================================
+
+Tested:
+- Empty tree construction
+- Array-based construction
+- Input validation (non-binary, prefix violations, duplicates)
+- Height calculation
+- Codeword retrieval in lexicographical order
+- Binary string decoding
+- String representation formatting
+- Array conversion (2SI3 convention)
+- Edge cases (single codeword, deep trees)
+

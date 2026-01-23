@@ -1,0 +1,45 @@
+﻿------------------Testing Constructor 1--------------
+Expected Output: "I num=0"
+I num=0
+
+------------------Testing method insertCodeword--------------
+
+------------------Test 1. Valid Input--------------
+Expected Output: "I c0 I num=1"
+I c0 I num=1
+
+------------------Testing method insertCodeword--------------
+
+------------------Test 2. Valid Input--------------
+Expected Output: "I c1 I I c0 I num=2"
+I c1 I I c0 I num=2
+
+------------------Testing method insertCodeword--------------
+
+------------------Test 3. Invalid Input. Duplicate codeword already in the tree--------------
+Expected Output: "Prefix condition violated!"
+Prefix condition violated!
+
+------------------Testing method insertCodeword--------------
+
+------------------Test 4. Invalid Input. A strict sufffix already in the tree--------------
+Expected Output: "Prefix condition violated!"
+Prefix condition violated!
+
+------------------Testing method insertCodeword--------------
+
+------------------Test 5. Invalid Input. A strict prefix already in the tree--------------
+Expected Output: "Prefix condition violated!"
+Prefix condition violated!
+
+------------------Testing Constructor 2--------------
+
+------------------Test 6. Valid Input--------------
+Expected Output: "c1 I c0 I c3 I c2 num=4"
+c1 I c0 I c3 I c2 num=4
+
+------------------Testing Constructor 2--------------
+
+------------------Test 7. Invalid Input. Some inputs are not binary--------------
+Expected Output: "Invalid Argument!"
+Invalid Argument!
