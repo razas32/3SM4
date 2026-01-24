@@ -225,6 +225,167 @@ public class Test {
         System.out.println("Pass: " + test12Pass);
         System.out.println();
 
+        // BONUS TESTS - optimize() functionality
+        System.out.println("========================================");
+        System.out.println("  BONUS: OPTIMIZE() METHOD TESTS");
+        System.out.println("========================================");
+        System.out.println();
+
+        // Test 13: Tree that's already full - should stay unchanged
+        System.out.println(">>> Test 13: Optimize Already-Full Tree");
+        String[] fullCodes = {"0", "10", "11"};
+        BinTree fullTree = new BinTree(fullCodes);
+        System.out.println("Before optimization (already full): " + fullTree.toString());
+        boolean beforeFull = fullTree.isFull();
+        int beforeHeight = fullTree.height();
+        fullTree.optimize();
+        String afterOptimize = fullTree.toString();
+        boolean afterFull = fullTree.isFull();
+        int afterHeight = fullTree.height();
+        System.out.println("After optimization: " + afterOptimize);
+        System.out.println("Was full before: " + beforeFull + ", Is full after: " + afterFull);
+        boolean test13Pass = beforeFull && afterFull &&
+                             beforeHeight == afterHeight &&
+                             afterOptimize.equals("(c0,0) (c1,10) (c2,11) ");
+        System.out.println("Pass: " + test13Pass);
+        System.out.println();
+
+        // Test 14: Simple case - root with only right child
+        System.out.println(">>> Test 14: Root with Only Right Child");
+        // Manually build a non-full tree: root -> null, right -> leaf
+        BinTree nonFullTree1 = new BinTree();
+        nonFullTree1.root.right = new TNode("c0", null, null);
+        System.out.print("Before: ");
+        nonFullTree1.printTree();
+        System.out.println(" (not full)");
+        System.out.println("Tree is full: " + nonFullTree1.isFull());
+        int heightBefore1 = nonFullTree1.height();
+        nonFullTree1.optimize();
+        System.out.print("After: ");
+        nonFullTree1.printTree();
+        System.out.println(" (should be just the leaf)");
+        int heightAfter1 = nonFullTree1.height();
+        boolean isFull1 = nonFullTree1.isFull();
+        System.out.println("Tree is full: " + isFull1);
+        System.out.println("Height reduced from " + heightBefore1 + " to " + heightAfter1);
+        boolean test14Pass = isFull1 && heightAfter1 == 0;
+        System.out.println("Pass: " + test14Pass);
+        System.out.println();
+
+        // Test 15: Root with only left child
+        System.out.println(">>> Test 15: Root with Only Left Child");
+        BinTree nonFullTree2 = new BinTree();
+        nonFullTree2.root.left = new TNode("c0", null, null);
+        System.out.print("Before: ");
+        nonFullTree2.printTree();
+        System.out.println(" (not full)");
+        int heightBefore2 = nonFullTree2.height();
+        nonFullTree2.optimize();
+        System.out.print("After: ");
+        nonFullTree2.printTree();
+        System.out.println(" (should be just the leaf)");
+        int heightAfter2 = nonFullTree2.height();
+        boolean isFull2 = nonFullTree2.isFull();
+        System.out.println("Tree is full: " + isFull2);
+        System.out.println("Height reduced from " + heightBefore2 + " to " + heightAfter2);
+        boolean test15Pass = isFull2 && heightAfter2 == 0;
+        System.out.println("Pass: " + test15Pass);
+        System.out.println();
+
+        // Test 16: Complex non-full tree with multiple single-child nodes
+        System.out.println(">>> Test 16: Complex Non-Full Tree");
+        // Build a tree manually with several single-child internal nodes
+        BinTree complexNonFull = new BinTree();
+        complexNonFull.root.left = new TNode("c0", null, null);  // left leaf
+        complexNonFull.root.right = new TNode(null, null, null);  // right internal
+        complexNonFull.root.right.right = new TNode(null, null, null);  // another internal (only right)
+        complexNonFull.root.right.right.left = new TNode("c1", null, null);
+        complexNonFull.root.right.right.right = new TNode("c2", null, null);
+
+        System.out.print("Before: ");
+        complexNonFull.printTree();
+        System.out.println();
+        System.out.println("Tree is full: " + complexNonFull.isFull() + " (should be false)");
+        int heightBefore3 = complexNonFull.height();
+        System.out.println("Height before: " + heightBefore3);
+
+        complexNonFull.optimize();
+
+        System.out.print("After: ");
+        complexNonFull.printTree();
+        System.out.println();
+        int heightAfter3 = complexNonFull.height();
+        boolean isFull3 = complexNonFull.isFull();
+        System.out.println("Tree is full: " + isFull3 + " (should be true)");
+        System.out.println("Height after: " + heightAfter3 + " (should be reduced)");
+        boolean test16Pass = isFull3 && heightAfter3 < heightBefore3;
+        System.out.println("Pass: " + test16Pass);
+        System.out.println();
+
+        // Test 17: Verify codewords get shorter and remain valid
+        System.out.println(">>> Test 17: Codeword Length Reduction");
+        BinTree lengthTest = new BinTree();
+        lengthTest.root.left = new TNode("c0", null, null);
+        lengthTest.root.right = new TNode(null, null, null);
+        lengthTest.root.right.right = new TNode("c1", null, null);  // codeword "11" (length 2)
+
+        ArrayList<String> beforeCodes = lengthTest.getCodewords();
+        System.out.println("Codewords before: " + beforeCodes);
+        System.out.println("Lengths: c0=" + beforeCodes.get(0).length() + ", c1=" + beforeCodes.get(1).length());
+
+        lengthTest.optimize();
+
+        ArrayList<String> afterCodes = lengthTest.getCodewords();
+        System.out.println("Codewords after: " + afterCodes);
+        System.out.println("Lengths: c0=" + afterCodes.get(0).length() + ", c1=" + afterCodes.get(1).length());
+        System.out.println("Tree is full: " + lengthTest.isFull());
+
+        boolean test17Pass = lengthTest.isFull() &&
+                             afterCodes.get(1).length() < beforeCodes.get(1).length();
+        System.out.println("Pass: " + test17Pass);
+        System.out.println();
+
+        // Test 18: Verify decode still works after optimization
+        System.out.println(">>> Test 18: Decoding After Optimization");
+        BinTree decodeTest = new BinTree();
+        decodeTest.root.left = new TNode(null, null, null);
+        decodeTest.root.left.left = new TNode("c0", null, null);  // "00"
+        decodeTest.root.left.right = new TNode("c1", null, null); // "01"
+        decodeTest.root.right = new TNode(null, null, null);
+        decodeTest.root.right.right = new TNode("c2", null, null); // "11"
+
+        System.out.print("Before optimization: ");
+        decodeTest.printTree();
+        System.out.println();
+        System.out.println("Codewords: " + decodeTest.getCodewords());
+        System.out.println("Tree is full: " + decodeTest.isFull() + " (not full - right has only one child)");
+
+        decodeTest.optimize();
+
+        System.out.print("After optimization: ");
+        decodeTest.printTree();
+        System.out.println();
+        ArrayList<String> optimizedCodes = decodeTest.getCodewords();
+        System.out.println("Optimized codewords: " + optimizedCodes);
+        System.out.println("Tree is full: " + decodeTest.isFull());
+
+        // Try decoding with the new, shorter codewords
+        String testMessage = "00" + "01" + "1" + "00" + "1";  // c0, c1, c2, c0, c2
+        ArrayList<String> decoded = decodeTest.decode(testMessage);
+        System.out.println("Encoded: " + testMessage);
+        System.out.println("Decoded: " + decoded);
+        System.out.println("Expected: [c0, c1, c2, c0, c2]");
+
+        boolean test18Pass = decodeTest.isFull() &&
+                             decoded.size() == 5 &&
+                             decoded.get(0).equals("c0") &&
+                             decoded.get(1).equals("c1") &&
+                             decoded.get(2).equals("c2") &&
+                             decoded.get(3).equals("c0") &&
+                             decoded.get(4).equals("c2");
+        System.out.println("Pass: " + test18Pass);
+        System.out.println();
+
         // Final summary
         System.out.println("========================================");
         System.out.println("  ALL TESTS COMPLETED SUCCESSFULLY!");
@@ -239,6 +400,7 @@ public class Test {
         System.out.println("- String representation formatting");
         System.out.println("- Array conversion");
         System.out.println("- Edge cases (single codeword, deep trees)");
+        System.out.println("- BONUS: Tree optimization (isFull, optimize)");
         System.out.println();
     }
 }

@@ -1,7 +1,7 @@
 
-========================================
-  BINTREE TESTING SUITE - Ali Raza
-========================================
+==============================
+   TESTING SUITE - 400338538
+================================
 
 >>> Test 1: Empty Tree Constructor
 Creating an empty BinTree...
@@ -66,7 +66,7 @@ Short tree toString: (c0,0) (c1,10) (c2,11)
 Expected: (c0,0) (c1,10) (c2,11) 
 Pass: true
 
->>> Test 10: Array Representation (2SI3 Convention)
+>>> Test 10: Array Representation
 Array size: 16
 Non-null entries:
   Position 1: I
@@ -103,6 +103,60 @@ Retrieved codes: [00000, 00001, 0001, 001, 01, 1]
 Pass: true
 
 ========================================
+  BONUS: OPTIMIZE() METHOD TESTS
+========================================
+
+>>> Test 13: Optimize Already-Full Tree
+Before optimization (already full): (c0,0) (c1,10) (c2,11) 
+After optimization: (c0,0) (c1,10) (c2,11) 
+Was full before: true, Is full after: true
+Pass: true
+
+>>> Test 14: Root with Only Right Child
+Before: I c0  (not full)
+Tree is full: false
+After: c0  (should be just the leaf)
+Tree is full: true
+Height reduced from 1 to 0
+Pass: true
+
+>>> Test 15: Root with Only Left Child
+Before: c0 I  (not full)
+After: c0  (should be just the leaf)
+Tree is full: true
+Height reduced from 1 to 0
+Pass: true
+
+>>> Test 16: Complex Non-Full Tree
+Before: c0 I I c1 I c2 
+Tree is full: false (should be false)
+Height before: 3
+After: c0 I c1 I c2 
+Tree is full: true (should be true)
+Height after: 2 (should be reduced)
+Pass: true
+
+>>> Test 17: Codeword Length Reduction
+Codewords before: [0, 11]
+Lengths: c0=1, c1=2
+Codewords after: [0, 1]
+Lengths: c0=1, c1=1
+Tree is full: true
+Pass: true
+
+>>> Test 18: Decoding After Optimization
+Before optimization: c0 I c1 I I c2 
+Codewords: [00, 01, 11]
+Tree is full: false (not full - right has only one child)
+After optimization: c0 I c1 I c2 
+Optimized codewords: [00, 01, 1]
+Tree is full: true
+Encoded: 00011001
+Decoded: [c0, c1, c2, c0, c2]
+Expected: [c0, c1, c2, c0, c2]
+Pass: true
+
+========================================
   ALL TESTS COMPLETED SUCCESSFULLY!
 ========================================
 
@@ -114,6 +168,7 @@ Tested:
 - Codeword retrieval in lexicographical order
 - Binary string decoding
 - String representation formatting
-- Array conversion (2SI3 convention)
+- Array conversion
 - Edge cases (single codeword, deep trees)
+- BONUS: Tree optimization (isFull, optimize)
 
