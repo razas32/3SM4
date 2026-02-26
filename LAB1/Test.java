@@ -43,7 +43,7 @@ public class Test {
         System.out.println("(notice the 'a' in third codeword)");
         boolean test3Pass = false;
         try {
-            BinTree badTree = new BinTree(badInput1);
+            new BinTree(badInput1);
             System.out.println("ERROR: Should have caught this!");
         } catch(IllegalArgumentException e) {
             System.out.println("Caught exception: " + e.getMessage());
@@ -59,7 +59,7 @@ public class Test {
         System.out.println("(note: '10' is a prefix of '100')");
         boolean test4Pass = false;
         try {
-            BinTree prefixTree = new BinTree(badInput2);
+            new BinTree(badInput2);
             System.out.println("ERROR: Missed the prefix violation!");
         } catch(IllegalArgumentException e) {
             System.out.println("Caught exception: " + e.getMessage());
@@ -75,7 +75,7 @@ public class Test {
         System.out.println("(10 appears twice)");
         boolean test5Pass = false;
         try {
-            BinTree dupTree = new BinTree(badInput3);
+            new BinTree(badInput3);
             System.out.println("ERROR: Duplicates should not be allowed!");
         } catch(IllegalArgumentException e) {
             System.out.println("Caught exception: " + e.getMessage());
