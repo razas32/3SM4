@@ -8,15 +8,17 @@ import java.util.*;
 
 public class TileGraph {
 
+    // the graph is stored as an adjacency list — each Tile maps to the list of Tiles it connects to
+    // using a HashMap gives us O(1) lookup per node, which is key for BFS/DFS performance
     private Map<Tile, LinkedList<Tile>> adjList;
 
-    // Default constructor: empty graph, no map attached yet
+    // empty graph — used in tests where we manually add vertices and edges
     public TileGraph()
     {
         adjList = new HashMap<Tile, LinkedList<Tile>>();
     }
 
-    // Map constructor: builds the graph from the given TileMap
+    // this constructor is what the actual game uses — pass in the TileMap and it auto-builds the graph
     public TileGraph(TileMap mRef)
     {
         adjList = new HashMap<>();
@@ -24,12 +26,16 @@ public class TileGraph {
     }
 
     // Time: O(1) avg - putIfAbsent is a single HashMap op
+    // adding a vertex just means registering a Tile as a key in the map with an empty neighbor list
+    // putIfAbsent makes sure we don't accidentally overwrite an existing entry
     private void addVertex(Tile thisTile)
     {
         adjList.putIfAbsent(thisTile, new LinkedList<Tile>());
     }
 
     // Time: O(deg(src)) - have to walk src's list to check for the duplicate
+    // adding an edge means appending dst to src's neighbor list
+    // we check for duplicates first so the same road doesn't get added twice
     private void addEdge(Tile src, Tile dst)
     {
         LinkedList<Tile> srcList = adjList.get(src);
@@ -38,6 +44,7 @@ public class TileGraph {
     }
 
     // Time: O(1) avg - single HashMap lookup by key
+    // just returns the adjacency list for a given tile — used internally by DFS and BFS
     private LinkedList<Tile> getAdjacentVertices(Tile thisTile)
     {
         return adjList.get(thisTile);
@@ -45,6 +52,9 @@ public class TileGraph {
 
     // Time: O(V + E) — each intersection is queued once, scan along each road once per direction
     // Space: O(V) for the queue and visited set, plus O(V + E) for the graph itself
+    // builds the graph by doing a BFS over the TileMap itself
+    // only intersections ('I') and destinations ('D') become vertices — roads are just how we find neighbors
+    // from each intersection, we scan right and down until we hit a wall or the next intersection
     private void buildGraph(TileMap mRef)
     {
         Tile[][] map = mRef.getMapRef();
@@ -53,6 +63,7 @@ public class TileGraph {
         Tile startTile = map[1][1];
         addVertex(startTile);
 
+        // use BFS to discover all reachable intersections from the start
         LinkedList<Tile> queue = new LinkedList<>();
         HashSet<Tile> visited = new HashSet<>();
         queue.add(startTile);
@@ -64,23 +75,24 @@ public class TileGraph {
             int cx = current.getX();
             int cy = current.getY();
 
-            // scan right — stop at wall, stop and connect at next intersection
+            // scan right along the same row — stop at a wall, connect and stop at the next intersection
             for (int x = cx + 1; x < TileMap.BOARDSIZEX - 1; x++)
             {
                 char t = map[cy][x].getTileType();
-                if (t == '#') break;
+                if (t == '#') break;  // wall blocks the road
 
                 if (t == 'I' || t == 'D')
                 {
                     Tile neighbor = map[cy][x];
                     addVertex(neighbor);
                     addEdge(current, neighbor);
+                    // only queue it if we haven't visited it yet — same as standard BFS
                     if (!visited.contains(neighbor)) { visited.add(neighbor); queue.add(neighbor); }
                     break;
                 }
             }
 
-            // scan down — same logic, different axis
+            // scan down along the same column — exact same logic, just on the y-axis
             for (int y = cy + 1; y < TileMap.BOARDSIZEY - 1; y++)
             {
                 char t = map[y][cx].getTileType();
@@ -100,10 +112,12 @@ public class TileGraph {
 
     // Time: O(V + E) — visits every vertex and edge once
     // Space: O(V) for the stack and visited set
+    // DFS — explores as deep as possible before backtracking
+    // uses a stack: push neighbors, pop the top one next, go deep first
     public LinkedList<Tile> depthFirstTraversal(Tile start)
     {
-        LinkedList<Tile> visitedList = new LinkedList<>();
-        HashSet<Tile> visitedSet = new HashSet<>();
+        LinkedList<Tile> visitedList = new LinkedList<>();  // the result — order we visited nodes
+        HashSet<Tile> visitedSet = new HashSet<>();         // fast lookup to avoid revisiting
 
         Stack<Tile> stack = new Stack<>();
         stack.push(start);
@@ -112,13 +126,14 @@ public class TileGraph {
         {
             Tile current = stack.pop();
 
-            // could've been pushed more than once before getting popped
+            // a node can be pushed multiple times before it's popped, so skip it if already visited
             if (visitedSet.contains(current)) continue;
 
             visitedSet.add(current);
             visitedList.add(current);
 
-            // reverse push so first neighbor in the list gets popped first
+            // push neighbors in reverse so the first neighbor in the list gets processed first
+            // this matches the expected traversal order in the tests
             LinkedList<Tile> neighbors = getAdjacentVertices(current);
             for (int i = neighbors.size() - 1; i >= 0; i--)
             {
@@ -132,44 +147,48 @@ public class TileGraph {
 
     // Time: O(V + E) — standard BFS, each node and edge touched once
     // Space: O(V) for visited, parent map, and queue
-    // path comes back end-first — Tracer calls indexOf() on it so that's the format it needs
+    // BFS — explores level by level, guarantees the shortest path (fewest hops)
+    // uses a queue: process nodes in the order they were discovered
+    // also tracks each node's parent so we can reconstruct the path at the end
     public LinkedList<Tile> findShortestPath(Tile start, Tile end)
     {
         LinkedList<Tile> path = new LinkedList<>();
 
         HashSet<Tile> visited = new HashSet<>();
-        HashMap<Tile, Tile> parent = new HashMap<>();  // parent[v] = node we came from to reach v
+        HashMap<Tile, Tile> parent = new HashMap<>();  // parent[v] = the node we came from to reach v
 
         LinkedList<Tile> queue = new LinkedList<>();
         queue.add(start);
         visited.add(start);
-        parent.put(start, null);
+        parent.put(start, null);  // start has no parent
 
         boolean found = false;
 
         while (!queue.isEmpty() && !found)
         {
-            Tile current = queue.poll();
+            Tile current = queue.poll();  // dequeue front — BFS processes in order of discovery
             LinkedList<Tile> neighbors = getAdjacentVertices(current);
 
-            // reversed iteration to match expected traversal order
+            // iterate in reverse to match expected BFS order in the tests
             for (int i = neighbors.size() - 1; i >= 0; i--)
             {
                 Tile neighbor = neighbors.get(i);
                 if (!visited.contains(neighbor))
                 {
                     visited.add(neighbor);
-                    parent.put(neighbor, current);
+                    parent.put(neighbor, current);  // remember how we got here
                     queue.add(neighbor);
 
+                    // stop as soon as we find the destination — BFS guarantees this is the shortest
                     if (neighbor.isEqual(end)) { found = true; break; }
                 }
             }
         }
 
-        if (!found) return path;
+        if (!found) return path;  // no path exists, return empty list
 
-        // walk parent chain from end back to start
+        // walk backwards from end to start using the parent map to reconstruct the path
+        // result comes back reversed (end first) — that's the format Tracer expects
         Tile curr = end;
         while (curr != null) { path.add(curr); curr = parent.get(curr); }
 
@@ -492,8 +511,9 @@ public class TileGraph {
         boolean passed = true;
         totalTestCount++;
 
-        // 3x3 grid of intersections plus one extra node at the bottom right
-        // mainly want to check the no-duplicate rule holds
+        // custom test: 3x3 grid of intersections + one disconnected node at bottom right
+        // the key thing being tested here is the no-duplicate edge rule in addEdge
+        // we intentionally add 0->1 twice and verify it only appears once in the adjacency list
         TileGraph testGraph = new TileGraph();
         Tile tileArray[] = {
             new Tile(0,  0,  'I', 0),   // 0
@@ -760,8 +780,8 @@ public class TileGraph {
         boolean passed = true;
         totalTestCount++;
 
-        // chain with a branch off node 1 — checking that getAdjacentVertices
-        // returns exactly what was added, nothing more
+        // custom test: a chain with a branch off node 1
+        // verifies getAdjacentVertices returns exactly the edges we added — no extras, no missing
         //
         //  0 -> 1 -> 2 -> 3
         //       |         |
@@ -985,16 +1005,17 @@ public class TileGraph {
         boolean passed = true;
         totalTestCount++;
 
-        // 3x3 grid, edges go right and down
+        // custom test: 3x3 grid where all edges go right or down, plus one extra edge 2->8
+        // the extra edge creates a second path to node 8 — DFS should still visit it only once
+        // traced through by hand to figure out the correct DFT order before coding the assertions
+        //
         //   0 -> 1 -> 2
-        //   |    |    |
-        //   v    v    v
-        //   3 -> 4 -> 5
-        //   |    |    |
+        //   |    |    |  \
+        //   v    v    v   v
+        //   3 -> 4 -> 5   8
+        //   |    |    |  /
         //   v    v    v
         //   6 -> 7 -> 8
-        // plus one extra edge 2->8 to hit 13 total
-        // traced through by hand — expected DFT order from node 0 is below
         TileGraph testGraph = new TileGraph();
         Tile tileArray[] = {
             new Tile(0, 0, 'I', 0),  // 0
@@ -1237,8 +1258,9 @@ public class TileGraph {
         boolean passed = true;
         totalTestCount++;
 
-        // set up a graph where 0->2->5->9 is clearly the shortest (3 hops)
-        // other routes exist but they're all longer, so BFS has one obvious answer
+        // custom test: designed so there's one obvious shortest path (0->2->5->9, 3 hops)
+        // and several longer alternates — verifies BFS picks the minimum hop count, not just any path
+        // result comes back reversed as [9, 5, 2, 0] since we reconstruct by walking the parent chain
         TileGraph testGraph = new TileGraph();
         Tile tileArray[] = {
             new Tile(0,  0,  'I', 0),   // 0 - start
